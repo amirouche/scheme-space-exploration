@@ -1,0 +1,5 @@
+- on-keypress on the container is buggy, actually it doesn't work well
+  in other places too. See how to install keybindings so that ECHAP does
+  close the modal or does other stuff.
+
+- drag'n'drop doesn't work

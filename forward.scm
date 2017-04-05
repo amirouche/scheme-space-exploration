@@ -118,23 +118,22 @@
 (define (set-timeout proc timeout)
   (js-invoke %window "setTimeout" (js-closure proc) timeout))
 
+(define (attrs->js-obj alist)
+  (alist->js-obj (map (lambda (pair)
+                        (cons (symbol->string (car pair)) (cdr pair))) alist)))
+
 (define (style->js-obj alist)
   (let ((out (rm (rm style 'remove) 'delayed)))
     (when (ref style 'remove)
       (set! out (acons "remove" (alist->js-obj (ref alist 'remove)) out)))
     (when (ref style 'delayed)
       (set! out (acons "delayed" (alist->js-obj (ref alist 'delayed)) out)))
-    (alist->js-obj out)))
-
-(define (attrs->js-obj alist)
-  (alist->js-obj (map (lambda (pair)
-                        (cons (symbol->string (car pair)) (cdr pair))) alist)))
+    (attrs->js-obj out)))
 
 (define (@->js-obj alist)
   (let ((out `(("attrs" . ,(attrs->js-obj (rm (rm alist 'on) 'style))))))
-    (pk out)
     (when (ref alist 'on)
-      (set! out (acons "on" (alist->js-obj (ref alist 'on)) out)))
+      (set! out (acons "on" (attrs->js-obj (ref alist 'on)) out)))
     (when (ref alist 'style)
       (set! out (acons "style" (style->js-obj (ref alist 'style)) out)))
     (alist->js-obj out)))
@@ -151,6 +150,7 @@
   (cond
    ((null? element) '())
    ((string? element) element)
+   ((number? element) element)
    (else
     (let ((tag (symbol->string (car element))))
       (let ((attrs (cadr element)))
@@ -164,22 +164,22 @@
 
 (define (mount container init view)
   ;; FIXME: docstring
-  (let ((state (init)))  ;; init state
+  (let ((model (init)))  ;; init model
     ;; create a procedure that allows to create new green threads
     (letrec ((spawn (lambda (timeout proc args)
-                      (set-timeout (lambda () (apply (proc state spawn) args)) timeout)))
+                      (set-timeout (lambda () (apply (proc model spawn) args)) timeout)))
              ;; lambda used to wrap event callback
              (make-controller (lambda (proc)
-                                (js-cloure (lambda args
-                                             (let ((new (apply (action state spawn) args)))
-                                               (set! state new)
-                                               (render))))))
+                                (js-closure
+                                 (lambda args
+                                   (let ((new (apply (proc model spawn) args)))
+                                     (set! model new)
+                                     (render))))))
              ;; rendering pipeline
              (render (lambda ()
-                       (let ((sxml (view state make-controller)))
+                       (let ((sxml (view model make-controller)))
                          (set! container (patch container (sxml->h sxml)))))))
       (render)
-
       (lambda (proc)
-        (set! state (proc state)) ;; set new state
-        (render))))) ;; render the new state
+        (set! model (proc state)) ;; set new model
+        (render))))) ;; render the new model

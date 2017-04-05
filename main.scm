@@ -3,17 +3,21 @@
 (define container (document-query-selector "#root"))
 
 (define (init)
-  "")
+  0)
 
-(define (text-changed state spawn)
+(define (button-clicked model spawn)
   (lambda (event)
-    (event-target-value event)))
+    (+ 1 model)))
 
-(define (view state)
-  (pk state)
+(define (view model mc)
+  (pk model)
   `(div (@ (id . "root"))
         (div (@ (id . "container"))
              (h1 "forward.scm " (small "⋅ frontend framework for Scheme"))
+             (h2 "Example")
+             (p "The counter has a value of " ,model)
+             (p (button (@ (on . ((click . ,(mc button-clicked))))) "increment"))
+             (h2 "Introduction")
              (p "forward.scm is a library that allows to code
                 dynamic website using the scheme language.")
              (p "This website is written using forward.scm")
@@ -37,7 +41,7 @@
                       magic of closures (you do no need to understand what
                       closures are to use forward.scm)")
                  (li "View is... well the user interface per se. The piece
-                      of code that represent the object you see. In forward.scm
+                      of code that represent the objects you see. In forward.scm
                       this is coded using a sxml (a scheme DSL for writting 
                       html or xml (where attributes are pure association list)).
                       In forward, there is a single view that in turns can use
@@ -52,6 +56,48 @@
                  which use sxml to represent the user interface and there are
                  controllers which are most of the time event handlers.")
              (p "(Most advanced MVC users might wonder whether it's possible to 
-                 compose hierarchically components, the answer is yes!)"))))
+                 compose hierarchically components, the answer is yes!)")
+             (h2 "Widgets")
+             (p "FIXME")
+             (h2 "Reference API")
+             (h3 "(mount container init view)")
+             (p "forward.js comes with various scheme helpers and javascript bindings,
+                 but the very core of it, the thing that is really revolutionary is
+                 the mount procedure.")
+             (p "It takes a CONTAINER as first argument, this should be a DOM node that
+                 will be replaced by the what return the VIEW procedure.")
+             (p "The second argument is INIT a procedure that must return the initial
+                 model of the app. It's the seed of the model. It will be passed around
+                 the app in VIEW and in controllers that you will write yourself. INIT
+                 doesn't take any arguments.")
+             (p "The last argument is VIEW. It's a procedure that takes two arguments.
+                 It looks like the following:")
+             (pre "(define (view model mc)
+  `(div (@ (id . \"root\"))
+     \"Héllo world!\"))")
+             (p "VIEW takes the current model as first arguments and a second procedure
+                 called mc for short (its real name is make-controller). That mc takes
+                 procedure as first and only argument and return basically a procedure
+                 that is bound to the current model. The VIEW must return sxml data with
+                 event handlers bound to DOM events inside the 'on attributes of sxml
+                 nodes. Ready?")
+             (h4 "Example")
+             (p "It will be more clear with a simple example. Imagine a clicker game
+                 where the only purpose is to click buttons to increase counters. Have
+                 that in mind? Yeah, then in that counters app the init procedure can
+                 look like the following:")
+             (pre "(define (init) 0)")
+             (p "The initial model is ZERO!")
+             (p "The view looks like the following:")
+             (pre "(define (view model mc)
+  `(div
+     (p \"The counter has a value of \" ,model)
+     (p (button (@ (on . ((click . ,(mc button-clicked))))) \"increment\"))))")
+             (p "As you can see that sxml file reference a button-clicked procedure
+                 that is not defined yet. Its definition follows:")
+             (pre "(define (button-clicked model spawn)
+  (lambda (event)
+    (+ 1 model)))"))))
+
 
 (mount container init view)

@@ -21,7 +21,7 @@
              (pre "> git clone https://github.com/amirouche/forward.scm")
              (p "To know more continue reading")
              (h2 "Kesako ?!")
-             (p (code "forward.scm") " is frontend framework that follows
+             (p "forward.scm is frontend framework that follows
                 the " (a (@ (href . "https://en.wikipedia.org/wiki/Model-view-controller"))
                          "Model-View-Controller pattern")
                 " (MVC) that use Scheme (I hope you already understood that

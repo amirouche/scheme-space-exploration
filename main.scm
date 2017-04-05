@@ -1,4 +1,4 @@
-(pk "start of main.scm")
+(pk "* start of main.scm")
 
 (define container (document-query-selector "#root"))
 

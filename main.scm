@@ -58,7 +58,7 @@
                  (number->string (ref object 'ore)) " ore, "
                  (number->string (ref object 'electricity)) " electricity, "
                  (number->string (ref object 'science)) " science."
-                 " To join this planet you need "
+                 " To join this " (symbol->string (ref object 'kind)) " you need "
                  (number->string (ref object 'ore*)) " ore, "
                  (number->string (ref object 'electricity*)) " electricity, "
                  (number->string (ref object 'science*)) " science."))

@@ -90,6 +90,7 @@ a {
     border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
     border-right: 1px solid hsla(0, 0%, 100%, 0.1);
     border-radius: 3px;
+    overflow-y: auto;
 }
 
 #preview img {

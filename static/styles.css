@@ -49,6 +49,10 @@ button {
     width: 100%;
 }
 
+#root.game {
+    display: flex;
+}
+
 #root #menu ul {
     list-style: none;
     margin: 0px;

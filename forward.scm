@@ -276,3 +276,9 @@
       ,children))
 
 (define (identity-controller model spawn) model)
+
+(define (make-routes routes)
+  (map (lambda (route) (cons (car route) (cadr route))) routes))
+
+(define (make-views routes)
+  (map (lambda (route) (cons (car route) (caddr route))) routes))

@@ -41,7 +41,7 @@
 (define (object-clicked position)
   (lambda (model spawn)
     (lambda (event)
-      (set* model 'preview position))))
+      (set* model 'game 'preview position))))
 
 (define (render-object model mc position)
   (let ((object (ref* model 'universe position)))
@@ -74,23 +74,23 @@
                     (< (distance position other) 3)) positions))))
 
 (define (acquire model position)
-  (let ((object (ref* model 'universe position)))
+  (let ((object (ref* model 'game 'universe position)))
     (pk object)
     (let ((electricity* (ref object 'electricity*))
           (ore* (ref object 'ore*))
           (science* (ref object 'science*)))
-      (set
-       (set
-        (set model 'science (- (ref model 'science) science*))
-        'ore 
-        (- (ref model 'ore) ore*))
-       'electricity
-       (- (ref model 'electricity) electricity*)))))
+      (set*
+       (set*
+        (set* model 'game 'science (- (ref* model 'game 'science) science*))
+        'game 'ore
+        (- (ref* model 'game 'ore) ore*))
+       'game 'electricity
+       (- (ref* model 'game 'electricity) electricity*)))))
 
 (define (acquire-clicked position)
   (lambda (model spawn)
     (lambda (event)
-      (set* (produce (acquire model position)) 'owned position #t))))
+      (set* (produce (acquire model position)) 'game 'owned position #t))))
 
 (define (object-affordable? object model)
   (and (< (ref object 'science*) (ref model 'science))
@@ -159,17 +159,19 @@
 (define universe `(((0 . 0) . ,(make-planet))
                    ((2 . 2) . ,(make-star))
                    ((1 . 2) . ,(make-asteroid))
-                   ((2 . 3) . ,(make-planet))                   
+                   ((2 . 3) . ,(make-planet))
                    ((1 . 5) . ,(make-asteroid))
                    ((1 . 8) . ,(make-asteroid))
                    ((2 . 9) . ,(make-asteroid))
+                   ((0 . 10) . ,(make-star))
+                   ((1 . 12) . ,(make-planet))
                    ((4 . 4) . ,(make-star))
                    ((5 . 5) . ,(make-star))
-                   ((3 . 6) . ,(make-planet))                   
+                   ((3 . 6) . ,(make-planet))
                    ))
 
 (define (init/game model spawn)
-  (set model 'game 
+  (set model 'game
        `((message . "Héllo dear Administer!")
          (universe . ,universe)
          (owned . (((0 . 0) . #t)))
@@ -199,7 +201,7 @@
         (h2 "help")
         (p "culturia goal is to learn scheme language while exploring the universe")
         (p "You start with a single planet that produce 10 ore, 10 electricity and 10 science.
-To increase your production you have the choice between exploring the universe and building factories. 
+To increase your production you have the choice between exploring the universe and building factories.
 Joining a new space object requires ressources and to already have an outpost
 near it. Otherwise you can build facilities on the space objects you already have to increase the
 production of electricity, ore and science. Planets are the most versatile. You can build
@@ -218,7 +220,7 @@ codex. Using the administer codex cost electricity")))
 
 (define routes `(("/" ,identity-controller ,view/index)
                  ("/game" ,init/game ,view/game)
-                 ("/help" ,identity-controller ,view/help)                 
+                 ("/help" ,identity-controller ,view/help)
                  ("/credits" ,identity-controller ,view/credits)))
 
 (define route->view (make-views routes))
@@ -228,7 +230,7 @@ codex. Using the administer codex cost electricity")))
     (if (eq? route 'unknown)
         `(h1 "Error 404: Unknown route " ,(document-location-pathname))
         (let ((view (ref route->view route)))
-          (if view 
+          (if view
               (view model mc)
               '(p "no route defined yet for " route))))))
 

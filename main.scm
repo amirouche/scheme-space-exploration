@@ -170,7 +170,7 @@
                    ((3 . 6) . ,(make-planet))
                    ))
 
-(define (init/game model spawn)
+(define (new-game model)
   (set model 'game
        `((message . "Héllo dear Administer!")
          (universe . ,universe)
@@ -179,12 +179,17 @@
          (electricity . 0)
          (science . 0))))
 
+(define (new-game-clicked model spawn)
+  (lambda (event)
+    (history-append "/game")
+    (resolve (new-game model) spawn)))
+
 (define (view/index model mc)
   `(div (@ (id . "root"))
         (div (@ (id . "menu"))
              (h1 "culturia" (small "⋅ space exploration"))
              (ul
-              (li ,(link mc "/game" '(button "new game")))
+              (li (button (@ (on . ((click . ,(mc new-game-clicked))))) "new game"))
               (li (button "load saved game"))
               (li ,(link mc "/help" '(button "help")))
               (li ,(link mc "/credits" '(button "credits")))))))
@@ -219,7 +224,7 @@ codex. Using the administer codex cost electricity")))
 
 
 (define routes `(("/" ,identity-controller ,view/index)
-                 ("/game" ,init/game ,view/game)
+                 ("/game" ,identity-controller ,view/game)
                  ("/help" ,identity-controller ,view/help)
                  ("/credits" ,identity-controller ,view/credits)))
 

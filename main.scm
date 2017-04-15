@@ -95,10 +95,8 @@
 
 (define (render-preview model mc position)
   (let ((object (ref* model 'universe position)))
-    `(div
-      (div
-       (img (@ (src . ,(object-image object))))
-       ,(render-object-description position object))
+    `((img (@ (src . ,(object-image object))))
+      ,(render-object-description position object)
       ,(if (member position (map car (ref model 'owned)))
            `(p "It's part of culturia!")
            (if (object-near? position model)

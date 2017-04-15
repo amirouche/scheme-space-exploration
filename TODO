@@ -1,3 +1,42 @@
+Space Exploration:
+
+- to make a building you need to program it
+
+- import foward.scm with router
+
+- each turn, you can consume all the ressources you have
+
+- every action consumes electricity
+
+- science panel allows to consume science, to have access to more
+  buildings
+
+- ore allows to build stuff
+
+- you can build an infinite number of solar panels on stars
+
+- building can be electricity storage
+
+- add production diff and limit
+
+- a biwascheme documentation
+
+- add buildings
+
+- save game state
+
+- add procedural generation of terrain
+
+- i18n
+
+- add credits for noun project icons
+
+- add journal of actions
+
+- count the number of turns
+
+Bugs in forward.scm:
+
 - on-keypress on the container is buggy, actually it doesn't work well
   in other places too. See how to install keybindings so that ECHAP does
   close the modal or does other stuff.

@@ -149,7 +149,7 @@
   ;; (map pk model)
   `(div (@ (id . "root"))
         (div (@ (id . "sidebar"))
-             (h1 "culturia " (small "⋅ space exploration clicker"))
+             (h1 "culturia " (small "⋅ space exploration"))
              (p ,(ref model 'message))
              ,(render-production model)
              ,(render-object-preview model mc)
@@ -178,4 +178,4 @@
     (electricity . 0)
     (science . 0)))
 
-(mount container init view)
+(create-app container init view)

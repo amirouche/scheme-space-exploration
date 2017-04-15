@@ -17,7 +17,7 @@
   (make-object 'star 0 10 0 100 100 100))
 
 (define (make-planet)
-  (make-object 'planet 5 5 5 50 50 50))
+  (make-object 'planet 1 1 1 50 50 50))
 
 (define (make-asteroid)
   (make-object 'asteroid 10 0 0 10 50 10))
@@ -89,9 +89,9 @@
       (set* (join model position) 'game 'owned position #t))))
 
 (define (object-affordable? object model)
-  (and (< (ref object 'science*) (ref model 'science))
-       (< (ref object 'ore*) (ref model 'ore))
-       (< (ref object 'electricity*) (ref model 'electricity))))
+  (and (<= (ref object 'science*) (ref model 'science))
+       (<= (ref object 'ore*) (ref model 'ore))
+       (<= (ref object 'electricity*) (ref model 'electricity))))
 
 (define (render-preview model mc)
   (let ((position (ref model 'preview)))
@@ -172,7 +172,10 @@
                (make-tech "lab III" 1000)
                (make-tech "store I" 10)
                (make-tech "store II" 100)
-               (make-tech "store III" 1000)))
+               (make-tech "store III" 1000)
+               (make-tech "solar panel I" 10)
+               (make-tech "solar panel II" 100)
+               (make-tech "solar panel III" 1000)))
 
 (define (render-tech mc model tech)
   `(li (div (@ (class . "tech"))

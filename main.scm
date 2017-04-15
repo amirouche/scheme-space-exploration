@@ -57,11 +57,7 @@
                  "It produce "
                  (number->string (ref object 'ore)) " ore, "
                  (number->string (ref object 'electricity)) " electricity, "
-                 (number->string (ref object 'science)) " science."
-                 " To join this " (symbol->string (ref object 'kind)) " you need "
-                 (number->string (ref object 'ore*)) " ore, "
-                 (number->string (ref object 'electricity*)) " electricity, "
-                 (number->string (ref object 'science*)) " science."))
+                 (number->string (ref object 'science)) " science."))
 
 (define (distance position other)
   (expt (+ (expt (- (car other) (car position)) 2)
@@ -97,21 +93,25 @@
        (< (ref object 'ore*) (ref model 'ore))
        (< (ref object 'electricity*) (ref model 'electricity))))
 
-(define (render-object-preview model mc)
+(define (render-preview model mc)
   (let ((position (ref model 'preview)))
     (if position
         (let ((object (ref* model 'universe position)))
-          `(div (@ (id . "preview"))
-                (div
-                 (img (@ (src . ,(object-image object))))
-                 ,(render-object-description position object))
-                ,(if (member position (map car (ref model 'owned)))
-                     `(p "It's part of culturia!")
-                     (if (object-near? position model)
-                         (if (object-affordable? object model)
-                             `(button (@ (on . ((click . ,(mc (acquire-clicked position)))))) "join")
-                             `(p "We do not have enough ressources"))
-                         `(p "It's too far away, continue exploring")))))
+          `(div
+            (div
+             (img (@ (src . ,(object-image object))))
+             ,(render-object-description position object))
+            ,(if (member position (map car (ref model 'owned)))
+                 `(p "It's part of culturia!")
+                 (if (object-near? position model)
+                     (if (object-affordable? object model)
+                         `(button (@ (on . ((click . ,(mc (acquire-clicked position)))))) "join")
+                         `((p ,(string-append " To join this " (symbol->string (ref object 'kind)) " you need "
+                                              (number->string (ref object 'ore*)) " ore, "
+                                              (number->string (ref object 'electricity*)) " electricity, "
+                                              (number->string (ref object 'science*)) " science."))
+                           (p "We do not have enough ressources")))
+                     `(p "It's too far away, continue exploring")))))
         '(div ""))))
 
 (define (render-production model)
@@ -137,24 +137,27 @@
 (define (produce model)
     (let ((electricity (turn-electricity model))
           (ore (turn-ore model))
-          (science (turn-science model)))
+          (science (turn-science model)))x
       (set* (set* (set* model 'game 'electricity electricity) 'game 'ore ore) 'game 'science science)))
 
 (define (next-turn model spawn)
   (lambda (event)
     (produce model)))
 
-(define (view/game model mc)
+(define (view/game-board model mc)
   `(div (@ (id . "root") (class . "game"))
         (div (@ (id . "sidebar"))
              (h1 "culturia " (small "⋅ space exploration"))
              (p ,(ref* model 'game 'message))
              ,(render-production (ref model 'game))
-             ,(render-object-preview (ref model 'game) mc)
              (button (@ (on . ((click . ,(mc next-turn))))) "next turn"))
         (div (@ (id . "board"))
-             ,(map (lambda (x) `(div (@ (class . "line"))
-                                     ,(map (lambda (y) (render-object (ref model 'game) mc (make-position x y))) (iota 13)))) (iota 13)))))
+             ,(map (lambda (x)
+                     `(div (@ (class . "line"))
+                           ,(map (lambda (y) (render-object (ref model 'game) mc (make-position x y))) (iota 13))))
+                   (iota 13)))
+        (div (@ (id . "preview"))
+             ,(render-preview (ref model 'game) mc))))
 
 (define universe `(((0 . 0) . ,(make-planet))
                    ((2 . 2) . ,(make-star))
@@ -181,7 +184,7 @@
 
 (define (new-game-clicked model spawn)
   (lambda (event)
-    (history-append "/game")
+    (history-append "/game/board")
     (resolve (new-game model) spawn)))
 
 (define (view/index model mc)
@@ -224,7 +227,7 @@ codex. Using the administer codex cost electricity")))
 
 
 (define routes `(("/" ,identity-controller ,view/index)
-                 ("/game" ,identity-controller ,view/game)
+                 ("/game/board" ,identity-controller ,view/game-board)
                  ("/help" ,identity-controller ,view/help)
                  ("/credits" ,identity-controller ,view/credits)))
 

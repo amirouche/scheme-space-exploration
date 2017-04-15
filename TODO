@@ -4,8 +4,6 @@ Space Exploration:
 
 - to make a building you need to program it
 
-- import foward.scm with router
-
 - each turn, you can consume all the ressources you have
 
 - every action consumes electricity
@@ -17,13 +15,9 @@ Space Exploration:
 
 - you can build an infinite number of solar panels on stars
 
-- building can be electricity storage
-
 - add production diff and limit
 
 - a biwascheme documentation
-
-- add buildings
 
 - save game state
 

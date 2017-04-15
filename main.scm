@@ -177,9 +177,15 @@
                (make-tech "solar panel II" 100)
                (make-tech "solar panel III" 1000)))
 
+(define (tech-known? tech model)
+  (member tech (ref model 'techs)))
+
 (define (render-tech mc model tech)
   `(li (div (@ (class . "tech"))
-            ,(tech-title tech))))
+            (p ,(tech-title tech) " "
+               ,(if (tech-known? (tech-title tech) model)
+                    ": You already know this technology"
+                    '(button "Learn"))))))
 
 (define (view/game-tech model mc)
   `(div (@ (id . "root") (class . "game"))
@@ -210,7 +216,7 @@
   (set model 'game
        `((message . "Héllo dear Administer!")
          (universe . ,universe)
-         (tech . '("lab 1" "store 1"))
+         (techs . ("lab I" "store I"))
          (owned . (((0 . 0) . #t)))
          (ore . 0)
          (electricity . 0)

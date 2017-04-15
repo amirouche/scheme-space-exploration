@@ -169,3 +169,18 @@ a {
     border-radius: 3px;
     margin: 0px 15px;
 }
+
+#tech ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+#tech ul li {
+    margin: 0px;
+    padding: 0px;
+}
+
+#tech ul li {
+    display: flex;
+}

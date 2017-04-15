@@ -257,7 +257,7 @@
 (define (create-app* container init view routes) ;; create-app with router
   (let ((change (%create-app container (lambda () (set (init) '%routes routes)) view)))
     ;; resolve when back button is clicked
-    (window-add-event-listener "popstate" (lambda (event) (pk 'fuu) (change resolve)))
+    (window-add-event-listener "popstate" (lambda (event) (change resolve)))
     ;; initial resolution
     (change resolve)
     ;; return the change

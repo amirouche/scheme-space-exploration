@@ -93,25 +93,28 @@
        (<= (ref object 'ore*) (ref model 'ore))
        (<= (ref object 'electricity*) (ref model 'electricity))))
 
-(define (render-preview model mc)
+(define (render-preview model mc position)
+  (let ((object (ref* model 'universe position)))
+    `(div
+      (div
+       (img (@ (src . ,(object-image object))))
+       ,(render-object-description position object))
+      ,(if (member position (map car (ref model 'owned)))
+           `(p "It's part of culturia!")
+           (if (object-near? position model)
+               (if (object-affordable? object model)
+                   `(button (@ (on . ((click . ,(mc (join-clicked position)))))) "join")
+                   `((p ,(string-append " To join this " (symbol->string (ref object 'kind)) " you need "
+                                        (number->string (ref object 'ore*)) " ore, "
+                                        (number->string (ref object 'electricity*)) " electricity, "
+                                        (number->string (ref object 'science*)) " science."))
+                     (p "We do not have enough ressources")))
+               `(p "It's too far away, continue exploring"))))))
+
+(define (maybe-render-preview model mc)
   (let ((position (ref model 'preview)))
     (if position
-        (let ((object (ref* model 'universe position)))
-          `(div
-            (div
-             (img (@ (src . ,(object-image object))))
-             ,(render-object-description position object))
-            ,(if (member position (map car (ref model 'owned)))
-                 `(p "It's part of culturia!")
-                 (if (object-near? position model)
-                     (if (object-affordable? object model)
-                         `(button (@ (on . ((click . ,(mc (join-clicked position)))))) "join")
-                         `((p ,(string-append " To join this " (symbol->string (ref object 'kind)) " you need "
-                                              (number->string (ref object 'ore*)) " ore, "
-                                              (number->string (ref object 'electricity*)) " electricity, "
-                                              (number->string (ref object 'science*)) " science."))
-                           (p "We do not have enough ressources")))
-                     `(p "It's too far away, continue exploring")))))
+        (render-preview model mc position)
         '(div ""))))
 
 (define (render-production model mc)
@@ -157,7 +160,7 @@
                            ,(map (lambda (y) (render-object (ref model 'game) mc (make-position x y))) (iota 13))))
                    (iota 13)))
         (div (@ (id . "preview"))
-             ,(render-preview (ref model 'game) mc))))
+             ,(maybe-render-preview (ref model 'game) mc))))
 
 (define (make-tech title cost)
   `((title . ,title)

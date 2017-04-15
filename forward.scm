@@ -215,7 +215,7 @@
 ;; router
 
 (define (make-route route)
-  (cons (cdr (string-split (car route) "/")) (cdr route)))
+  (cdr (string-split route "/")))
 
 (define (component-match route url)
   (cond
@@ -244,21 +244,18 @@
   (set* (set* model 'location 'route route) 'location 'params params))
 
 (define (resolve model spawn)
-  (let ((url (car (make-route (cons (document-location-pathname) #f)))))
+  (let ((url (make-route (document-location-pathname))))
     (let loop ((routes (ref model '%routes)))
       (if (null? routes)
           (change-unknown-route model)
-          (call-with-values (lambda () (route-match (caar routes) url))
+          (call-with-values (lambda () (route-match (make-route (caar routes)) url))
             (lambda (match? params)
               (if match?
                   ((cdar routes) (change-location model (caar routes) params) spawn)
                   (loop (cdr routes)))))))))
 
 (define (create-app* container init view routes) ;; create-app with router
-  (let ((change (%create-app container init view))
-        (routes (map make-route routes)))
-    ;; set the routes in the model
-    (change (lambda (model spawn) (set model '%routes routes)))
+  (let ((change (%create-app container (lambda () (set (init) '%routes routes)) view)))
     ;; resolve when back button is clicked
     (document-add-event-listener "onpopstate" (lambda (event) (change resolve)))
     ;; initial resolution

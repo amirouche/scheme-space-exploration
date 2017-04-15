@@ -86,7 +86,7 @@
 (define (join-clicked position)
   (lambda (model spawn)
     (lambda (event)
-      (set* (produce (join model position)) 'game 'owned position #t))))
+      (set* (join model position) 'game 'owned position #t))))
 
 (define (object-affordable? object model)
   (and (< (ref object 'science*) (ref model 'science))
@@ -266,7 +266,7 @@ codex. Using the administer codex cost electricity")))
 (define route->view (make-views routes))
 
 (define (view model mc)
-  (let ((route (pk 'route (ref* model 'location 'route))))
+  (let ((route (ref* model 'location 'route)))
     (if (eq? route 'unknown)
         `(h1 "Error 404: Unknown route " ,(document-location-pathname))
         (let ((view (ref route->view route)))

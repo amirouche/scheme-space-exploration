@@ -9,7 +9,7 @@
     (ore . ,ore) ;; production per turn
     (electricity . ,electricity) ;; production per turn
     (science . ,science)  ;; production per turn
-    (ore* . ,ore*) ;; required ressources to acquire
+    (ore* . ,ore*) ;; required ressources to join
     (electricity* . ,electricity*)
     (science* . ,science*)))
 
@@ -28,14 +28,14 @@
                         (star . "star.png")))
 
 (define (object-image object)
-  (string-append "static/" (ref object->image (ref object 'kind))))
+  (string-append "/static/" (ref object->image (ref object 'kind))))
 
-(define (object-acquired? model position)
+(define (object-joined? model position)
   (ref* model 'owned position))
 
 (define (render-object-class model position)
-  (if (object-acquired? model position)
-      "space acquired"
+  (if (object-joined? model position)
+      "space joined"
       "space"))
 
 (define (object-clicked position)
@@ -69,7 +69,7 @@
     (memq #t (map (lambda (other)
                     (< (distance position other) 3)) positions))))
 
-(define (acquire model position)
+(define (join model position)
   (let ((object (ref* model 'game 'universe position)))
     (pk object)
     (let ((electricity* (ref object 'electricity*))
@@ -83,10 +83,10 @@
        'game 'electricity
        (- (ref* model 'game 'electricity) electricity*)))))
 
-(define (acquire-clicked position)
+(define (join-clicked position)
   (lambda (model spawn)
     (lambda (event)
-      (set* (produce (acquire model position)) 'game 'owned position #t))))
+      (set* (produce (join model position)) 'game 'owned position #t))))
 
 (define (object-affordable? object model)
   (and (< (ref object 'science*) (ref model 'science))
@@ -105,7 +105,7 @@
                  `(p "It's part of culturia!")
                  (if (object-near? position model)
                      (if (object-affordable? object model)
-                         `(button (@ (on . ((click . ,(mc (acquire-clicked position)))))) "join")
+                         `(button (@ (on . ((click . ,(mc (join-clicked position)))))) "join")
                          `((p ,(string-append " To join this " (symbol->string (ref object 'kind)) " you need "
                                               (number->string (ref object 'ore*)) " ore, "
                                               (number->string (ref object 'electricity*)) " electricity, "
@@ -114,14 +114,14 @@
                      `(p "It's too far away, continue exploring")))))
         '(div ""))))
 
-(define (render-production model)
+(define (render-production model mc)
   `(div (@ (id . "production"))
-        (div (p ,(ref model 'ore))
-             (img (@ (src . "static/ore.png"))))
-        (div (p ,(ref model 'electricity))
-             (img (@ (src . "static/electricity.png"))))
-        (div (p ,(ref model 'science))
-             (img (@ (src . "static/science.png"))))))
+        ,(link mc "/game/board" `(div (p ,(ref model 'ore))
+                                      (img (@ (src . "/static/ore.png")))))
+        ,(link mc "/game/board" `(div (p ,(ref model 'electricity))
+                                      (img (@ (src . "/static/electricity.png")))))
+        ,(link mc "/game/science" `(div (p ,(ref model 'science))
+                                        (img (@ (src . "/static/science.png")))))))
 
 (define (turn-ressource name)
   (lambda (model)
@@ -137,7 +137,7 @@
 (define (produce model)
     (let ((electricity (turn-electricity model))
           (ore (turn-ore model))
-          (science (turn-science model)))x
+          (science (turn-science model)))
       (set* (set* (set* model 'game 'electricity electricity) 'game 'ore ore) 'game 'science science)))
 
 (define (next-turn model spawn)
@@ -149,7 +149,7 @@
         (div (@ (id . "sidebar"))
              (h1 "culturia " (small "⋅ space exploration"))
              (p ,(ref* model 'game 'message))
-             ,(render-production (ref model 'game))
+             ,(render-production (ref model 'game) mc)
              (button (@ (on . ((click . ,(mc next-turn))))) "next turn"))
         (div (@ (id . "board"))
              ,(map (lambda (x)
@@ -158,6 +158,36 @@
                    (iota 13)))
         (div (@ (id . "preview"))
              ,(render-preview (ref model 'game) mc))))
+
+(define (make-tech title cost)
+  `((title . ,title)
+    (cost . ,cost)))
+
+(define (tech-title tech)
+  (ref tech 'title))
+
+(define techs (list
+               (make-tech "lab I" 10)
+               (make-tech "lab II" 100)
+               (make-tech "lab III" 1000)
+               (make-tech "store I" 10)
+               (make-tech "store II" 100)
+               (make-tech "store III" 1000)))
+
+(define (render-tech mc model tech)
+  `(li (div (@ (class . "tech"))
+            ,(tech-title tech))))
+
+(define (view/game-tech model mc)
+  `(div (@ (id . "root") (class . "game"))
+        (div (@ (id . "sidebar"))
+             (h1 "culturia " (small "⋅ space exploration"))
+             (p ,(ref* model 'game 'message))
+             ,(render-production (ref model 'game) mc)
+             (button (@ (on . ((click . ,(mc next-turn))))) "next turn"))
+        (div (@ (id . "tech"))
+             (p "This is a science administration area. You can join new tech to progress in the game")
+             (ul ,(map (lambda (tech) (render-tech mc (ref model 'game) tech)) techs)))))
 
 (define universe `(((0 . 0) . ,(make-planet))
                    ((2 . 2) . ,(make-star))
@@ -177,6 +207,7 @@
   (set model 'game
        `((message . "Héllo dear Administer!")
          (universe . ,universe)
+         (tech . '("lab 1" "store 1"))
          (owned . (((0 . 0) . #t)))
          (ore . 0)
          (electricity . 0)
@@ -228,6 +259,7 @@ codex. Using the administer codex cost electricity")))
 
 (define routes `(("/" ,identity-controller ,view/index)
                  ("/game/board" ,identity-controller ,view/game-board)
+                 ("/game/science" ,identity-controller ,view/game-tech)                 
                  ("/help" ,identity-controller ,view/help)
                  ("/credits" ,identity-controller ,view/credits)))
 

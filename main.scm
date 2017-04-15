@@ -118,7 +118,6 @@
   `(div (@ (id . "production"))
         (div (p ,(ref model 'ore))
              (img (@ (src . "static/ore.png"))))
-
         (div (p ,(ref model 'electricity))
              (img (@ (src . "static/electricity.png"))))
         (div (p ,(ref model 'science))
@@ -145,7 +144,8 @@
   (lambda (event)
     (produce model)))
 
-(define (view model mc)
+(define (view/game model mc)
+  (pk 'view/game)
   ;; (map pk model)
   `(div (@ (id . "root"))
         (div (@ (id . "sidebar"))
@@ -170,12 +170,68 @@
                    ((3 . 6) . ,(make-planet))                   
                    ))
 
-(define (init)
-  `((message . "Héllo dear Administer!")
-    (universe . ,universe)
-    (owned . (((0 . 0) . #t)))
-    (ore . 0)
-    (electricity . 0)
-    (science . 0)))
+(define (init/game model spawn)
+  (set model 'game 
+       `((message . "Héllo dear Administer!")
+         (universe . ,universe)
+         (owned . (((0 . 0) . #t)))
+         (ore . 0)
+         (electricity . 0)
+         (science . 0))))
 
-(create-app container init view)
+(define (view/index model mc)
+  `(div (@ (id . "root"))
+        (div (@ (id . "menu"))
+             (h1 "culturia" (small "⋅ space exploration"))
+             (ul
+              (li ,(link mc "/game" '(button "new game")))
+              (li (button "load saved game"))
+              (li ,(link mc "/help" '(button "help")))
+              (li ,(link mc "/credits" '(button "credits")))))))
+
+(define (view/credits model mc)
+  `(div (@ (id . "root"))
+        (h1 "culturia" (small " ⋅ space exploration"))
+        (h2 "credits")
+        (p "icons are from the noun project (FIXME expand credits later)")))
+
+(define (view/help model mc)
+  `(div (@ (id . "root"))
+        (h1 "culturia" (small " ⋅ space exploration"))
+        (h2 "help")
+        (p "culturia goal is to learn scheme language while exploring the universe")
+        (p "You start with a single planet that produce 10 ore, 10 electricity and 10 science.
+To increase your production you have the choice between exploring the universe and building factories. 
+Joining a new space object requires ressources and to already have an outpost
+near it. Otherwise you can build facilities on the space objects you already have to increase the
+production of electricity, ore and science. Planets are the most versatile. You can build
+on them whatever you want but the ressources are limited. You can extract a lot of ore from
+asteroid and can harness star energy to produce a lot of electricity.")
+        (p "Building facility mostly cost ore, but you will need to program the facility
+so that the facility actually produce something. Evaluating a program cost electricity.")
+        (p "Each turn new ressources are produced by your factories. You consume those
+ressources by reaching new space objects, programming factories and using the administer
+codex. Ore and electricity is limited by the storage facility you have. Science
+is not limited. That said science production is slow, you can build labs to increase science
+production.")
+        (p "Science allows you to discover new scheme constructs which populates the administer
+codex. Using the administer codex cost electricity")))
+
+
+(define routes `(("/" ,identity-controller ,view/index)
+                 ("/game" ,init/game ,view/game)
+                 ("/help" ,identity-controller ,view/help)                 
+                 ("/credits" ,identity-controller ,view/credits)))
+
+(define route->view (make-views routes))
+
+(define (view model mc)
+  (let ((route (pk 'route (ref* model 'location 'route))))
+    (if (eq? route 'unknown)
+        `(h1 "Error 404: Unknown route " ,(document-location-pathname))
+        (let ((view (ref route->view route)))
+          (if view 
+              (view model mc)
+              '(p "no route defined yet for " route))))))
+
+(create-app* container (lambda () '()) view (make-routes routes))

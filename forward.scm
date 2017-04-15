@@ -92,8 +92,8 @@
     (js-invoke event "initEvent" name #t #t)
     (js-invoke %document "dispatchEvent" event)))
 
-(define (document-add-event-listener name proc)
-  (js-invoke %document "addEventListener" name (js-closure proc) #f))
+(define (window-add-event-listener name proc)
+  (js-invoke %window "addEventListener" name (js-closure proc) #f))
 
 ;; history API
 
@@ -257,7 +257,7 @@
 (define (create-app* container init view routes) ;; create-app with router
   (let ((change (%create-app container (lambda () (set (init) '%routes routes)) view)))
     ;; resolve when back button is clicked
-    (document-add-event-listener "onpopstate" (lambda (event) (change resolve)))
+    (window-add-event-listener "popstate" (lambda (event) (pk 'fuu) (change resolve)))
     ;; initial resolution
     (change resolve)
     ;; return the change

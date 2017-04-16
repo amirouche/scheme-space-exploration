@@ -223,15 +223,15 @@
   (ref tech 'title))
 
 (define techs (list
-               (make-tech "lab I" 10)
-               (make-tech "lab II" 100)
-               (make-tech "lab III" 1000)
-               (make-tech "store I" 10)
-               (make-tech "store II" 100)
-               (make-tech "store III" 1000)
-               (make-tech "solar panel I" 10)
-               (make-tech "solar panel II" 100)
-               (make-tech "solar panel III" 1000)))
+               (make-tech "lab XS" 10)
+               (make-tech "lab S" 100)
+               (make-tech "lab M" 1000)
+               (make-tech "store XS" 10)
+               (make-tech "store S" 100)
+               (make-tech "store M" 1000)
+               (make-tech "solar panel XS" 10)
+               (make-tech "solar panel S" 100)
+               (make-tech "solar panel M" 1000)))
 
 (define (tech-known? tech model)
   (member tech (ref model 'techs)))
@@ -272,7 +272,7 @@
   (set model 'game
        `((message . "Héllo dear Administer!")
          (universe . ,universe)
-         (techs . ("lab I" "store I"))
+         (techs . ("lab XS" "store XS"))
          (facilities . ())
          (programmed . ())
          (owned . (((0 . 0) . #t)))

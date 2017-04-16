@@ -82,8 +82,9 @@
 (define (eval* string)
   "synchronous sandboxed eval"
   (let ((out (call/cc (lambda (return)
-                        (let ((interpreter (js-new "BiwaScheme.Interpreter" (js-closure (lambda (e) (return e))))))
-                          (js-invoke interpreter "evaluate" string (js-closure (lambda (e) (return e)))))))))
+                        (let ((returned #f))
+                          (let ((interpreter (js-new "BiwaScheme.Interpreter" (js-closure (lambda (e) e)))))
+                            (js-invoke interpreter "evaluate" string (js-closure (lambda (e) (unless returned (return e)))))))))))
     (if (js-undefined? (js-ref out "message"))
         (values #t out)
         (values #f (js-ref out "message")))))

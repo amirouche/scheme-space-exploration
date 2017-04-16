@@ -59,6 +59,24 @@
         (let ((other (substring string 0 l)))
           (equal? other prefix)))))
 
+(define (random-string size)
+  "Generate and random identifier of length SIZE"
+  (define CHARS "0123456789AZERTYUIOPQSDFGHJKLMWXCVBN")
+  ;; append SIZE alphanumeric chars from `CHARS`
+  (let loop ((count size)
+             (chars '()))
+    (if (eq? count 0)
+        (list->string chars)
+        (loop (- count 1) (cons (string-ref CHARS (random-integer 36)) chars)))))
+
+(define (generate-uid exists?)
+  "Generate a random string made up alphanumeric ascii chars that doesn't exists
+   according to `exists?`"
+  (let loop ()
+    ;; generate a random identifier until it find an one that doesn't already `exists?`
+    (let ((id (random-string 8)))
+      (if (exists? id) (loop) id))))
+
 ;;; async ajax bindings
 
 (define $ (js-eval "jQuery"))

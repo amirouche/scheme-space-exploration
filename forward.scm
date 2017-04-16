@@ -74,8 +74,16 @@
    according to `exists?`"
   (let loop ()
     ;; generate a random identifier until it find an one that doesn't already `exists?`
-    (let ((id (random-string 8)))
+    (let ((id (random-string 4)))
       (if (exists? id) (loop) id))))
+
+;;;
+
+(define (eval* string)
+  "synchronous sandboxed eval"
+  (call/cc (lambda (return)
+             (let ((interpreter (js-new "BiwaScheme.Interpreter" (js-closure (lambda (e) (return e))))))
+               (js-invoke interpreter "evaluate" string (js-closure (lambda (e) (return e))))))))
 
 ;;; async ajax bindings
 

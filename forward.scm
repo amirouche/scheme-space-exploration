@@ -80,14 +80,15 @@
 ;;;
 
 (define (eval* string)
-  "synchronous sandboxed eval"
-  (let ((out (call/cc (lambda (return)
-                        (let ((returned #f))
-                          (let ((interpreter (js-new "BiwaScheme.Interpreter" (js-closure (lambda (e) e)))))
-                            (js-invoke interpreter "evaluate" string (js-closure (lambda (e) (unless returned (return e)))))))))))
+  "sandboxed eval"
+  (let ((out (let ((interpreter (js-new "BiwaScheme.Interpreter" (js-closure (lambda (e) e)))))
+               (js-invoke interpreter "evaluate" string (js-closure (lambda (e) e))))))
     (if (js-undefined? (js-ref out "message"))
         (values #t out)
         (values #f (js-ref out "message")))))
+
+(define program "(define (zip a b)(map cons a b))(equal? (zip '(a b c) '(1 2 3)) '((a . 1) (b . 2) (c . 3)))")
+(pk 'out (eval* program))
 
 ;;; async ajax bindings
 

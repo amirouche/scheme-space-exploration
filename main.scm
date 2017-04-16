@@ -71,7 +71,6 @@
 
 (define (join model position)
   (let ((object (ref* model 'game 'universe position)))
-    (pk object)
     (let ((electricity* (ref object 'electricity*))
           (ore* (ref object 'ore*))
           (science* (ref object 'science*)))
@@ -97,7 +96,6 @@
   (lambda (model spawn)
     (lambda (event)
       (let ((facility (make-facility (ref model 'game) tech position)))
-        (pk facility)
         (set* model 'game 'facilities (cons facility (ref* model 'game 'facilities)))))))
 
 (define (render-factories model mc position)
@@ -136,7 +134,8 @@
     (if (null? programmable)
         '(p "There is no facilities to program")
         (map (lambda (facility)
-               `(p (button "program facility " ,(facility-tech facility) " “" ,(facility-name facility) "”")))
+               `(p ,(link mc (string-append "/game/programming/" (facility-name facility))
+                          `(button "program facility " ,(facility-tech facility) " “" ,(facility-name facility) "”"))))
              programmable))))
 
 (define (render-working model mc position)
@@ -144,7 +143,7 @@
          (working (filter (lambda (facility) (facility-programmed? model (facility-name facility))) facilities)))
     (if (null? working)
         '(p "There is no facilities currently working")
-        (map (lambda (facility) `(p ,(facility-tech facility) " " ,(facility-name facility) " is working")) working))))
+        (map (lambda (facility) `(p ,(facility-tech facility) " “" ,(facility-name facility) "” is working")) working))))
 
 (define (render-preview model mc position)
   (let ((object (ref* model 'universe position)))
@@ -162,7 +161,7 @@
                                         (number->string (ref object 'science*)) " science."))
                      (p "We do not have enough ressources")))
                `(p "It's too far away, continue exploring"))))))
-               
+
 
 (define (maybe-render-preview model mc)
   (let ((position (ref model 'preview)))
@@ -254,6 +253,37 @@
              (p "This is a science administration area. You can join new tech to progress in the game")
              (ul ,(map (lambda (tech) (render-tech mc (ref model 'game) tech)) techs)))))
 
+(define (submit-clicked model spawn)
+  (lambda (event)
+    (pk 'submit-clicked)
+    (let* ((program (ref* model 'game 'program))
+           (test (string-append program "(equal? (zip '(a b c) '(1 2 3)) '((a . 1) (b . 2) (c . 3)))")))
+      (pk test)
+      (call-with-values (lambda () (eval* test))
+        (lambda (ok result)
+          (if ok
+              (let ((programmed (ref* model 'game 'programmed))
+                    (name (pk 'uid (ref* model 'location 'params ":uid"))))
+                (set* model 'game 'programmed (cons name programmed)))
+              model))))))
+
+(define (program-changed model spawn)
+  (lambda (event)
+    (set* model 'game 'program (event-target-value event))))
+
+(define (view/game-programming model mc)
+  (map pk model)
+  `(div (@ (id . "root") (class . "game"))
+        (div (@ (id . "sidebar"))
+             (h1 "culturia " (small "⋅ space exploration"))
+             (p ,(ref* model 'game 'message))
+             ,(render-production (ref model 'game) mc)
+             (button (@ (on . ((click . ,(mc next-turn))))) "next turn"))
+        (div (@ (id . "programming"))
+             (p "You must write a zip function")
+             (textarea (@ (on . ((change . ,(mc program-changed))))) "")
+             (button (@ (on . ((click . ,(mc submit-clicked))))) "submit"))))
+
 (define universe `(((0 . 0) . ,(make-planet))
                    ((2 . 2) . ,(make-star))
                    ((1 . 2) . ,(make-asteroid))
@@ -326,7 +356,8 @@ codex. Using the administer codex cost electricity")))
 
 (define routes `(("/" ,identity-controller ,view/index)
                  ("/game/board" ,identity-controller ,view/game-board)
-                 ("/game/science" ,identity-controller ,view/game-tech)                 
+                 ("/game/science" ,identity-controller ,view/game-tech)
+                 ("/game/programming/:uid" ,identity-controller ,view/game-programming)
                  ("/help" ,identity-controller ,view/help)
                  ("/credits" ,identity-controller ,view/credits)))
 

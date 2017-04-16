@@ -250,7 +250,7 @@
 (define (component-match route url)
   (cond
    ((string-prefix? ":" route)
-    (values #t (cons (substring route 0 (string-length route)) url)))
+    (values #t (list (cons (substring route 0 (string-length route)) url))))
    ((equal? route url) (values #t '()))
    (else (values #f '()))))
 

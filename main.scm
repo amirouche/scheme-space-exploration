@@ -354,12 +354,12 @@ production.")
 codex. Using the administer codex cost electricity")))
 
 
-(define routes `(("/" ,identity-controller ,view/index)
-                 ("/game/board" ,identity-controller ,view/game-board)
-                 ("/game/science" ,identity-controller ,view/game-tech)
-                 ("/game/programming/:uid" ,identity-controller ,view/game-programming)
-                 ("/help" ,identity-controller ,view/help)
-                 ("/credits" ,identity-controller ,view/credits)))
+(define routes `(("/space-exploration/" ,identity-controller ,view/index)
+                 ("/space-exploration/game/board" ,identity-controller ,view/game-board)
+                 ("/space-exploration/game/science" ,identity-controller ,view/game-tech)
+                 ("/space-exploration/game/programming/:uid" ,identity-controller ,view/game-programming)
+                 ("/space-exploration/help" ,identity-controller ,view/help)
+                 ("/space-exploration/credits" ,identity-controller ,view/credits)))
 
 (define route->view (make-views routes))
 

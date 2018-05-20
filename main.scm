@@ -28,7 +28,7 @@
                         (star . "star.png")))
 
 (define (object-image object)
-  (string-append "/static/" (ref object->image (ref object 'kind))))
+  (string-append "/space-exploration/static/" (ref object->image (ref object 'kind))))
 
 (define (object-joined? model position)
   (ref* model 'owned position))
@@ -172,11 +172,11 @@
 (define (render-production model mc)
   `(div (@ (id . "production"))
         ,(link mc "/space-exploration/game/board" `(div (p ,(ref model 'ore))
-                                      (img (@ (src . "/static/ore.png")))))
+                                      (img (@ (src . "/space-exploration/static/ore.png")))))
         ,(link mc "/space-exploration/game/board" `(div (p ,(ref model 'electricity))
-                                      (img (@ (src . "/static/electricity.png")))))
+                                      (img (@ (src . "/space-exploration/static/electricity.png")))))
         ,(link mc "/space-exploration/game/science" `(div (p ,(ref model 'science))
-                                        (img (@ (src . "/static/science.png")))))))
+                                        (img (@ (src . "/space-exploration/static/science.png")))))))
 
 (define (turn-ressource name)
   (lambda (model)

@@ -134,7 +134,7 @@
     (if (null? programmable)
         '(p "There is no facilities to program")
         (map (lambda (facility)
-               `(p ,(link mc (string-append "/game/programming/" (facility-name facility))
+               `(p ,(link mc (string-append "/space-exploration/game/programming/" (facility-name facility))
                           `(button "program facility " ,(facility-tech facility) " “" ,(facility-name facility) "”"))))
              programmable))))
 
@@ -171,11 +171,11 @@
 
 (define (render-production model mc)
   `(div (@ (id . "production"))
-        ,(link mc "/game/board" `(div (p ,(ref model 'ore))
+        ,(link mc "/space-exploration/game/board" `(div (p ,(ref model 'ore))
                                       (img (@ (src . "/static/ore.png")))))
-        ,(link mc "/game/board" `(div (p ,(ref model 'electricity))
+        ,(link mc "/space-exploration/game/board" `(div (p ,(ref model 'electricity))
                                       (img (@ (src . "/static/electricity.png")))))
-        ,(link mc "/game/science" `(div (p ,(ref model 'science))
+        ,(link mc "/space-exploration/game/science" `(div (p ,(ref model 'science))
                                         (img (@ (src . "/static/science.png")))))))
 
 (define (turn-ressource name)
@@ -312,7 +312,7 @@
 
 (define (new-game-clicked model spawn)
   (lambda (event)
-    (history-append "/game/board")
+    (history-append "/space-exploration/game/board")
     (resolve (new-game model) spawn)))
 
 (define (view/index model mc)
@@ -322,8 +322,8 @@
              (ul
               (li (button (@ (on . ((click . ,(mc new-game-clicked))))) "new game"))
               (li (button "load saved game"))
-              (li ,(link mc "/help" '(button "help")))
-              (li ,(link mc "/credits" '(button "credits")))))))
+              (li ,(link mc "/space-exploration/help" '(button "help")))
+              (li ,(link mc "/space-exploration/credits" '(button "credits")))))))
 
 (define (view/credits model mc)
   `(div (@ (id . "root"))
